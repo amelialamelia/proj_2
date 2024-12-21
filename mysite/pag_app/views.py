@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import DataForm
-from .models import person_collection, stations
-import redis
+from .models import year_collection, stations_data
 import json
 
 def home(request):
@@ -13,7 +12,7 @@ def home(request):
         if date and data_type:
             return redirect('data_vis', data_type=data_type, date=date)
     context = {'form': form,
-               'station_data': stations}
+               'station_data': stations_data}
     return render(request, "pag_app/home.html", context)
 
 
@@ -29,10 +28,16 @@ def data_vis(request, data_type, date):
             if date and data_type:
                 return redirect('data_vis', data_type=data_type, date=date)
     
+    if data_type == 'year':
+        year = date.split('-')[0]
+        susza_data = year_collection.find_one({'year': year})
+        susza_data = json.dumps(susza_data, default=str)
+    elif data_type == 'month':
+        susza_data = 0
+        
     context = {
-        "data_type": data_type,
-        "date": date,
         "form": form,
-        "station_data": stations
+        "station_data": stations_data,
+        "susza_data": susza_data
     }
     return render(request, "pag_app/data_vis.html", context)
