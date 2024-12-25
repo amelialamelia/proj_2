@@ -25,6 +25,7 @@ function getSuszaLayers(susza_data){
     
     const wojRegex = /^Województwo.*/;
     const powRegex = /^Powiat.*/;
+    
     jQuery.each(susza_data, function(i, val) {
         if(wojRegex.test(val.id)){
             console.log("Województwo: " + val.id);
