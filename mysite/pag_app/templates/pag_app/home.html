@@ -3,9 +3,9 @@
 {% block scripts %}
 <script>
     let stations = document.getElementById("data-container").getAttribute("data-station-data");
-    let stations_json = JSON.parse(stations);
-    getStationsLayer(stations_json).addTo(map);
-
+    let stations_data = JSON.parse(stations);
+    
+    getStationsLayer(stations_data).addTo(map);
 </script>
 
 {% endblock scripts%}
