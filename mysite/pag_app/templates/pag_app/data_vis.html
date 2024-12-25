@@ -5,13 +5,14 @@
     if (performance.navigation.type === 1) {
         window.location.href = "/";
     }
-    let stations = document.getElementById("data-container").getAttribute("data-station-data");
-    let stations_json = JSON.parse(stations);
-    let susza_data = document.getElementById("data-container").getAttribute("data-susza-data");
-    let susza_json = JSON.parse(susza_data);
-    susza_data = susza_json.data;
+    const stations = document.getElementById("data-container").getAttribute("data-station-data");
+    const stations_data = JSON.parse(stations);
 
-    getStationsLayer(stations_json).addTo(map);
+    const susza_json = document.getElementById("data-container").getAttribute("data-susza-data");
+    const susza_data = JSON.parse(susza_json).data;
+    
+
+    getStationsLayer(stations_data).addTo(map);
     getSuszaLayers(susza_data);
 
 </script>
