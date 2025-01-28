@@ -4,8 +4,16 @@
 <script>
     let stations = document.getElementById("data-container").getAttribute("data-station-data");
     let stations_data = JSON.parse(stations);
+
+    const stationsLayer = getStationsLayer(stations_data);
+    stationsLayer.addTo(map);
     
-    getStationsLayer(stations_data).addTo(map);
+    const overlayLayers = {
+        "Stacje IMGW": stationsLayer
+    };
+
+    L.control.layers(null,  overlayLayers).addTo(map);
+
 </script>
 
 {% endblock scripts%}

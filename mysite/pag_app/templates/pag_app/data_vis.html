@@ -9,11 +9,21 @@
     const stations_data = JSON.parse(stations);
 
     const susza_json = document.getElementById("data-container").getAttribute("data-susza-data");
-    const susza_data = JSON.parse(susza_json).data;
+    const susza_data = JSON.parse(susza_json);
     
+    const stationsLayer = getStationsLayer(stations_data);
+    stationsLayer.addTo(map);
+    
+    const suszaLayer = getSuszaLayer(susza_data);
+    suszaLayer.addTo(map);
 
-    getStationsLayer(stations_data).addTo(map);
-    getSuszaLayers(susza_data);
+
+    const overlayLayers = {
+        "Stacje IMGW": stationsLayer,
+        "Zagrożenie suszą": suszaLayer
+    };
+
+    L.control.layers(null,  overlayLayers).addTo(map);
 
 </script>
 {% endblock scripts%}

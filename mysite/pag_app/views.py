@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import DataForm
-from .models import stations_data
+from .models import stations_data, month_collection
 import json
 
 def home(request):
@@ -16,9 +16,9 @@ def home(request):
 
 
 def data_vis(request, date):
-    initial_data = {'date': date}
+    initial_data = {'date': date[:-3]}
     form = DataForm(initial=initial_data)
-
+    print(date)
     if request.GET:
         form = DataForm(request.GET)
         if form.is_valid():
@@ -26,8 +26,10 @@ def data_vis(request, date):
             if date:
                 return redirect('data_vis', date=date)
 
-    susza_data = 0
-        
+    month_id = date[:-3]
+    susza_data = month_collection.find_one({'properties.date': month_id})
+    susza_data = json.dumps(susza_data, default=str)
+
     context = {
         "form": form,
         "station_data": stations_data,

@@ -4,59 +4,66 @@ let map = L.map('map').setView([52.0, 19.0], 6);
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-function getStationsLayer(stations_json){
-    stations_layer = L.layerGroup();
-    jQuery.each(stations_json, function(i, val) {
-        let marker = L.marker([val.lat, val.lng]).addTo(map);
-        popupContent = `
-            <b>Typ stacji: ${val.type}</b><br>
-            <b>Lokalizacja: ${val.name}</b><br>
-            <b>Data założenia: ${val.activitype}</b><br>
-        `;
-        marker.bindPopup(popupContent);
-        stations_layer.addLayer(marker);
-    });
-    return stations_layer;
+function stationsPopupContent(feature) {
+    return (
+        `<b>Typ stacji: ${feature.properties.type}</b><br>
+        <b>Lokalizacja: ${feature.properties.name}</b><br>
+        <b>Data założenia: ${feature.properties.activitype}</b><br>`
+    )
 }
 
-function getSuszaLayers(susza_data){
-    woj_layer = L.layerGroup();
-    pow_layer = L.layerGroup();
-    
-    const wojRegex = /^Województwo.*/;
-    const powRegex = /^Powiat.*/;
-    
-    jQuery.each(susza_data, function(i, val) {
-        if(wojRegex.test(val.id)){
-            console.log("Województwo: " + val.id);
+function getStationsLayer(stations_data){
+    let stationsLayer = L.geoJSON(stations_data, {
+        onEachFeature: (feature, layer) => {
+            layer.bindPopup(stationsPopupContent(feature))
         }
-        else if(powRegex.test(val.id)){
-            console.log("Powiat: " + val.id);
+    })
+    return stationsLayer
+}
+
+function getColorBasedOnValue(value){
+    if (value < -12){
+        return 'red'
+    }
+    if (value > -12 && value < -6){
+        return 'yellow'
+    }
+    return 'green'
+}
+
+function getZagrozenieLabel(value) {
+    if (value < -12) {
+        return 'Duże'
+    }
+    if (value >= -12 && value < -6) {
+        return 'Średnie'
+    }
+    return 'Małe'
+}
+
+function suszaPopupContent(feature){
+    const zagrozenie = getZagrozenieLabel(feature.properties.wskaznik)
+    return (
+        `<b>Województwo ${feature.properties.name}</b><br>
+        <b>Zagrożenie suszy: ${zagrozenie}</b><br>`
+    )
+}
+
+function getSuszaLayer(susza_data){
+    let suszaLayer = L.geoJSON(susza_data, {
+        style: function(feature) {
+            const color = getColorBasedOnValue(feature.properties.wskaznik)
+            return {
+                fillColor: color,
+                color: '#000',
+                weight: 1,
+                opacity: 0.7,
+                fillOpacity: 0.5
+            };
+        },
+        onEachFeature: (feature, layer) => {
+            layer.bindPopup(suszaPopupContent(feature));
         }
     });
-    return [woj_layer, pow_layer];
-}
-
-function linearInterpolation(start, end, percentage){
-    return start + Math.round(percentage * (end - start));
-}
-
-function colorInterpolation(start, end, value){
-    return {
-        "r": linearInterpolation(start.r, end.r, value),
-        "g": linearInterpolation(start.g, end.g, value),
-        "b": linearInterpolation(start.b, end.b, value)
-    }
-}
-
-function gradientPick(value, start, center, end){
-    if(value <50){
-        return colorInterpolation(start, center, value*2);
-    }
-    else if (value == 50){
-        return center;
-    }
-    else{
-        return colorInterpolation(center, end, (value-50)*2);
-    }
+    return suszaLayer
 }
